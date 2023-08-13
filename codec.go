@@ -27,9 +27,8 @@ type Reader interface {
 // command size limit, the client delegate, using the Size() method, can
 // determine whether the size of the command being sent is small enough.
 //
-// Server codec decodes commands and encodes results. When decoding a command,
-// the server codec may impose restriction on its size. If the command is too
-// big it may, for example, return an error.
+// Server codec decodes commands and encodes results. In the Decode method it
+// can check the length of the command.
 type Codec[T, V any] interface {
 	Encode(seq base.Seq, t T, w Writer) (err error)
 	Decode(r Reader) (seq base.Seq, v V, err error)

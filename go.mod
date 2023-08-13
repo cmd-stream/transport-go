@@ -3,8 +3,8 @@ module github.com/cmd-stream/transport-go
 go 1.20
 
 require (
-	github.com/cmd-stream/base-go v0.0.0-20230730131136-652b0761abe5
-	github.com/cmd-stream/delegate-go v0.0.0-20230804182208-ab3fab891dcb
+	github.com/cmd-stream/base-go v0.0.0-20230813145615-dd6ac24c16f5
+	github.com/cmd-stream/delegate-go v0.0.0-20230813163159-f99e433ebdab
 	github.com/ymz-ncnk/mok v0.1.0
 )
 

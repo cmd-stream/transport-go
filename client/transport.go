@@ -24,7 +24,7 @@ func New[T any](conf common.Conf, conn net.Conn,
 	}
 }
 
-// Transport is an implementation of the delegate.ClientTransport.
+// Transport is an implementation of the delegate.ClientTransport interface.
 //
 // It will not send a command if it is too big for the server.
 type Transport[T any] struct {
@@ -49,10 +49,10 @@ func (t *Transport[T]) ApplyServerSettings(settings delegate.ServerSettings) {
 	t.settings = settings
 }
 
-// Send sends a Cmd.
+// Send sends a command.
 //
-// If cmd size is bigger than MaxCmdSize from the server settings it returns
-// ErrTooBigCmd.
+// Returns ErrTooBigCmd, if the command size is bigger than
+// ServerSettings.MaxCmdSize.
 func (t *Transport[T]) Send(seq base.Seq, cmd base.Cmd[T]) error {
 	if t.settings.MaxCmdSize > 0 && t.codec.Size(cmd) > t.settings.MaxCmdSize {
 		return ErrTooBigCmd

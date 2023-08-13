@@ -1,6 +1,6 @@
 # transport-go
-transport-go provides commands/results delivery for the cmd-stream client 
-and server for Golang.
+transport-go provides commands/results delivery for the cmd-stream-go client 
+and server.
 
 It contains implementations of the `delegate.ClientTransport` and 
 `delegate.ServerTransport` interfaces (they are located in the corresponding 

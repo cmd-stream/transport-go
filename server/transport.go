@@ -20,7 +20,7 @@ func New[T any](conf common.Conf, conn net.Conn,
 	return &Transport[T]{w, common.New(conn, w, r, codec)}
 }
 
-// Transport is an implementation of the delegate.ServerTransport.
+// Transport is an implementation of the delegate.ServerTransport interface.
 type Transport[T any] struct {
 	w transport.Writer
 	*common.Transport[base.Result, base.Cmd[T]]
