@@ -1,8 +1,6 @@
 package mock
 
 import (
-	"reflect"
-
 	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/transport-go"
 	"github.com/ymz-ncnk/mok"
@@ -40,13 +38,7 @@ func (mock ClientCodec) RegisterSize(
 }
 
 func (mock ClientCodec) Decode(r transport.Reader) (seq base.Seq, result base.Result, err error) {
-	var rVal reflect.Value
-	if r == nil {
-		rVal = reflect.Zero(reflect.TypeOf((*transport.Reader)(nil)).Elem())
-	} else {
-		rVal = reflect.ValueOf(r)
-	}
-	vals, err := mock.Call("Decode", rVal)
+	vals, err := mock.Call("Decode", mok.SafeVal[transport.Reader](r))
 	if err != nil {
 		panic(err)
 	}
@@ -58,19 +50,8 @@ func (mock ClientCodec) Decode(r transport.Reader) (seq base.Seq, result base.Re
 
 func (mock ClientCodec) Encode(seq base.Seq, cmd base.Cmd[any], w transport.Writer) (
 	err error) {
-	var cmdVal reflect.Value
-	if cmd == nil {
-		cmdVal = reflect.Zero(reflect.TypeOf((*base.Cmd[any])(nil)).Elem())
-	} else {
-		cmdVal = reflect.ValueOf(cmd)
-	}
-	var wVal reflect.Value
-	if w == nil {
-		wVal = reflect.Zero(reflect.TypeOf((*transport.Writer)(nil)).Elem())
-	} else {
-		wVal = reflect.ValueOf(w)
-	}
-	vals, err := mock.Call("Encode", seq, cmdVal, wVal)
+	vals, err := mock.Call("Encode", seq, mok.SafeVal[base.Cmd[any]](cmd),
+		mok.SafeVal[transport.Writer](w))
 	if err != nil {
 		panic(err)
 	}
@@ -79,13 +60,7 @@ func (mock ClientCodec) Encode(seq base.Seq, cmd base.Cmd[any], w transport.Writ
 }
 
 func (mock ClientCodec) Size(cmd base.Cmd[any]) (size int) {
-	var cmdVal reflect.Value
-	if cmd == nil {
-		cmdVal = reflect.Zero(reflect.TypeOf((*base.Cmd[any])(nil)).Elem())
-	} else {
-		cmdVal = reflect.ValueOf(cmd)
-	}
-	vals, err := mock.Call("Size", cmdVal)
+	vals, err := mock.Call("Size", mok.SafeVal[base.Cmd[any]](cmd))
 	if err != nil {
 		panic(err)
 	}
