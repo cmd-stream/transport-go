@@ -122,8 +122,8 @@ func TestTransport(t *testing.T) {
 			)
 			transport.ApplyServerSettings(delegate.ServerSettings{MaxCmdSize: 3})
 			err := transport.Send(1, nil)
-			if err != ErrTooBigCmd {
-				t.Errorf("unexpected error, want '%v' actual '%v'", ErrTooBigCmd, err)
+			if err != ErrTooLargeCmd {
+				t.Errorf("unexpected error, want '%v' actual '%v'", ErrTooLargeCmd, err)
 			}
 		})
 

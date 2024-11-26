@@ -51,11 +51,11 @@ func (t *Transport[T]) ApplyServerSettings(settings delegate.ServerSettings) {
 
 // Send sends a command.
 //
-// Returns ErrTooBigCmd, if the command size is bigger than
+// Returns ErrTooLargeCmd, if the command size is bigger than
 // ServerSettings.MaxCmdSize.
 func (t *Transport[T]) Send(seq base.Seq, cmd base.Cmd[T]) error {
 	if t.settings.MaxCmdSize > 0 && t.codec.Size(cmd) > t.settings.MaxCmdSize {
-		return ErrTooBigCmd
+		return ErrTooLargeCmd
 	}
 	return t.Transport.Send(seq, cmd)
 }
