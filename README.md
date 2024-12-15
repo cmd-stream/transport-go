@@ -13,6 +13,3 @@ It contains implementations of the `delegate.ClientTransport` and
 A key feature of this module is the use of `bufio.Writer` and `bufio.Reader` 
 along with a user-defined Codec to convert raw bytes into `base.Cmd` or 
 `base.Result`.
-
-# Tests
-Test coverage is about 95%.
