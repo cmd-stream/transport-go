@@ -26,7 +26,7 @@ func New[T any](conf common.Conf, conn net.Conn,
 
 // Transport is an implementation of the delegate.ClientTransport interface.
 //
-// It will not send a command if it is too big for the server.
+// It will not send a command if it is too large for the server.
 type Transport[T any] struct {
 	r transport.Reader
 	*common.Transport[base.Cmd[T], base.Result]
