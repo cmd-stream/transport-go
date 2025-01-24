@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/cmd-stream/base-go"
-	cs_mock "github.com/cmd-stream/base-go/testdata/mock"
+	bmock "github.com/cmd-stream/base-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go/common"
-	transport_mock "github.com/cmd-stream/transport-go/testdata/mock"
+	tmock "github.com/cmd-stream/transport-go/testdata/mock"
 )
 
 const Delta = 100 * time.Millisecond
@@ -28,7 +28,7 @@ func TestTransport(t *testing.T) {
 					delegate.MarshalServerInfoMUS(wantInfo, buf)
 					return buf.Bytes()
 				}()
-				conn = cs_mock.NewConn().RegisterRead(
+				conn = bmock.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						n = copy(b, bs)
 						return
@@ -49,7 +49,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Read error")
-				conn    = cs_mock.NewConn().RegisterRead(
+				conn    = bmock.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						return 0, wantErr
 					},
@@ -75,7 +75,7 @@ func TestTransport(t *testing.T) {
 					delegate.MarshalServerSettingsMUS(wantSettings, buf)
 					return buf.Bytes()
 				}()
-				conn = cs_mock.NewConn().RegisterRead(
+				conn = bmock.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						n = copy(b, bs)
 						return
@@ -96,7 +96,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Read error")
-				conn    = cs_mock.NewConn().RegisterRead(
+				conn    = bmock.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						return 0, wantErr
 					},
@@ -115,7 +115,7 @@ func TestTransport(t *testing.T) {
 	t.Run("ApplyServerSettings should affect Send method",
 		func(t *testing.T) {
 			var (
-				codec = transport_mock.NewClientCodec().RegisterSize(
+				codec = tmock.NewClientCodec().RegisterSize(
 					func(cmd base.Cmd[any]) (size int) { return 5 },
 				)
 				transport = New[any](common.Conf{}, nil, codec)

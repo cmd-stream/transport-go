@@ -1,6 +1,6 @@
 package common
 
-// Conf is a configuration of the Transport.
+// Conf configures the Transport.
 //
 // WriterBufSize defines a buffer size for the Writer, if == 0, the default
 // bufio.Writer size is used.

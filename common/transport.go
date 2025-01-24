@@ -54,7 +54,7 @@ func (tr *Transport[T, V]) SetReceiveDeadline(deadline time.Time) error {
 	return tr.conn.SetReadDeadline(deadline)
 }
 
-// Receives receives data with the associated sequence number using the codec.
+// Receive receives data with the associated sequence number using the codec.
 func (tr *Transport[T, V]) Receive() (seq base.Seq, v V, err error) {
 	return tr.codec.Decode(tr.r)
 }

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	cs_mock "github.com/cmd-stream/base-go/testdata/mock"
+	bmock "github.com/cmd-stream/base-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go/common"
 	"github.com/cmd-stream/transport-go/testdata/mock"
@@ -27,7 +27,7 @@ func TestTransport(t *testing.T) {
 					delegate.MarshalServerInfoMUS(wantInfo, buf)
 					return buf.Bytes()
 				}()
-				conn = cs_mock.NewConn().RegisterWrite(
+				conn = bmock.NewConn().RegisterWrite(
 					func(bs []byte) (n int, err error) {
 						if !bytes.Equal(bs, wantBs) {
 							t.Errorf("unexpected bs, want '%v' actual '%v'", wantBs, bs)
@@ -48,7 +48,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.Write error")
-				conn    = cs_mock.NewConn().RegisterWrite(
+				conn    = bmock.NewConn().RegisterWrite(
 					func(b []byte) (n int, err error) {
 						err = wantErr
 						return
@@ -72,7 +72,7 @@ func TestTransport(t *testing.T) {
 					delegate.MarshalServerSettingsMUS(wantSettings, buf)
 					return buf.Bytes()
 				}()
-				conn = cs_mock.NewConn().RegisterWrite(
+				conn = bmock.NewConn().RegisterWrite(
 					func(bs []byte) (n int, err error) {
 						if !bytes.Equal(bs, wantBs) {
 							t.Errorf("unexpected bs, want '%v' actual '%v'", wantBs, bs)
@@ -93,7 +93,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.Write error")
-				conn    = cs_mock.NewConn().RegisterWrite(
+				conn    = bmock.NewConn().RegisterWrite(
 					func(b []byte) (n int, err error) {
 						err = wantErr
 						return

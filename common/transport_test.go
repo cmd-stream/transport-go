@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/cmd-stream/base-go"
-	cs_mock "github.com/cmd-stream/base-go/testdata/mock"
+	bmock "github.com/cmd-stream/base-go/testdata/mock"
 	"github.com/cmd-stream/transport-go"
-	mock "github.com/cmd-stream/transport-go/testdata/mock"
+	tmock "github.com/cmd-stream/transport-go/testdata/mock"
 	"github.com/ymz-ncnk/mok"
 )
 
@@ -22,7 +22,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantAddr = &net.TCPAddr{IP: net.ParseIP("127.0.0.1:9000")}
-				conn     = cs_mock.NewConn().RegisterLocalAddr(
+				conn     = bmock.NewConn().RegisterLocalAddr(
 					func() (addr net.Addr) {
 						return wantAddr
 					},
@@ -43,7 +43,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantAddr = &net.TCPAddr{IP: net.ParseIP("127.0.0.1:9000")}
-				conn     = cs_mock.NewConn().RegisterRemoteAddr(
+				conn     = bmock.NewConn().RegisterRemoteAddr(
 					func() (addr net.Addr) {
 						return wantAddr
 					},
@@ -64,7 +64,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantDeadline = time.Now()
-				conn         = cs_mock.NewConn().RegisterSetWriteDeadline(
+				conn         = bmock.NewConn().RegisterSetWriteDeadline(
 					func(deadline time.Time) (err error) {
 						if deadline != wantDeadline {
 							err = fmt.Errorf("unexpected deadline, want '%v' actual '%v'",
@@ -87,7 +87,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.SetWriteDeadline error")
-				conn    = cs_mock.NewConn().RegisterSetWriteDeadline(
+				conn    = bmock.NewConn().RegisterSetWriteDeadline(
 					func(deadline time.Time) (err error) { return wantErr },
 				)
 				mocks     = []*mok.Mock{conn.Mock}
@@ -105,9 +105,9 @@ func TestTransport(t *testing.T) {
 	t.Run("Send should encode data with help of the Codec", func(t *testing.T) {
 		var (
 			wantSeq base.Seq = 1
-			wantCmd          = cs_mock.NewCmd()
-			writer           = mock.NewWriter()
-			codec            = mock.NewClientCodec().RegisterEncode(
+			wantCmd          = bmock.NewCmd()
+			writer           = tmock.NewWriter()
+			codec            = tmock.NewClientCodec().RegisterEncode(
 				func(seq base.Seq, cmd base.Cmd[any], w transport.Writer) (err error) {
 					if seq != wantSeq {
 						t.Errorf("unexpected seq, want '%v' actual '%v'", wantSeq, seq)
@@ -135,7 +135,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Codec.Encode error")
-				codec   = mock.NewClientCodec().RegisterEncode(
+				codec   = tmock.NewClientCodec().RegisterEncode(
 					func(seq base.Seq, cmd base.Cmd[any], w transport.Writer) (err error) {
 						return wantErr
 					},
@@ -156,7 +156,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantDeadline = time.Now()
-				conn         = cs_mock.NewConn().RegisterSetReadDeadline(
+				conn         = bmock.NewConn().RegisterSetReadDeadline(
 					func(deadline time.Time) (err error) {
 						if deadline != wantDeadline {
 							err = fmt.Errorf("unexpected deadline, want '%v' actual '%v'",
@@ -179,7 +179,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.SetReadDeadline error")
-				conn    = cs_mock.NewConn().RegisterSetReadDeadline(
+				conn    = bmock.NewConn().RegisterSetReadDeadline(
 					func(deadline time.Time) (err error) { return wantErr },
 				)
 				mocks     = []*mok.Mock{conn.Mock}
@@ -197,8 +197,8 @@ func TestTransport(t *testing.T) {
 	t.Run("Receive should decode data with help of the Codec", func(t *testing.T) {
 		var (
 			wantSeq    base.Seq = 1
-			wantResult          = cs_mock.NewResult()
-			codec               = mock.NewClientCodec().RegisterDecode(
+			wantResult          = bmock.NewResult()
+			codec               = tmock.NewClientCodec().RegisterDecode(
 				func(r transport.Reader) (seq base.Seq, result base.Result, err error) {
 					return wantSeq, wantResult, nil
 				},
@@ -228,7 +228,7 @@ func TestTransport(t *testing.T) {
 				wantSeq    base.Seq    = 0
 				wantResult base.Result = nil
 				wantErr                = errors.New("Codec.Decode error")
-				codec                  = mock.NewClientCodec().RegisterDecode(
+				codec                  = tmock.NewClientCodec().RegisterDecode(
 					func(r transport.Reader) (seq base.Seq, result base.Result, err error) {
 						err = wantErr
 						return
@@ -255,7 +255,7 @@ func TestTransport(t *testing.T) {
 
 	t.Run("Close should close the conn", func(t *testing.T) {
 		var (
-			conn = cs_mock.NewConn().RegisterClose(
+			conn = bmock.NewConn().RegisterClose(
 				func() (err error) { return nil },
 			)
 			mocks     = []*mok.Mock{conn.Mock}
@@ -274,7 +274,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.Close error")
-				conn    = cs_mock.NewConn().RegisterClose(
+				conn    = bmock.NewConn().RegisterClose(
 					func() (err error) { return wantErr },
 				)
 				mocks     = []*mok.Mock{conn.Mock}
@@ -293,7 +293,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Writer.Flush error")
-				writer  = mock.NewWriter().RegisterFlush(
+				writer  = tmock.NewWriter().RegisterFlush(
 					func() error { return wantErr },
 				)
 				mocks     = []*mok.Mock{writer.Mock}

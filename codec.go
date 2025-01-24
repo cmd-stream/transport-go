@@ -21,14 +21,17 @@ type Reader interface {
 	io.ByteReader
 }
 
-// Codec encodes/decodes data to/from the connection.
+// Codec is responsible for encoding and decoding data transmitted over the
+// connection:
 //
-// Client codec encodes commands and decodes results. If the server imposes a
-// command size limit, the client delegate, using the Size() method, can
-// determine whether the size of the command being sent is small enough.
+//   - On the client side: Encodes Commands and decodes Results received from the
+//     server. If the server imposes a Command size limit, the client can use the
+//     Codec.Size() method to ensure that Commands being sent comply with the size
+//     restriction.
 //
-// Server codec decodes commands and encodes results. In the Decode method it
-// can check the length of the command.
+//   - On the server side: Decodes Commands received from the client and encodes
+//     Results to be sent back. During the Decode process, the server can validate
+//     the Command length to enforce size constraints.
 type Codec[T, V any] interface {
 	Encode(seq base.Seq, t T, w Writer) (err error)
 	Decode(r Reader) (seq base.Seq, v V, err error)
