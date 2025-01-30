@@ -34,12 +34,3 @@ func (t *Transport[T]) SendServerInfo(info delegate.ServerInfo) (
 	}
 	return t.Flush()
 }
-
-func (t *Transport[T]) SendServerSettings(settings delegate.ServerSettings) (
-	err error) {
-	_, err = delegate.MarshalServerSettingsMUS(settings, t.w)
-	if err != nil {
-		return
-	}
-	return t.Flush()
-}

@@ -20,7 +20,6 @@ func New[T any](conf common.Conf, conn net.Conn,
 	return &Transport[T]{
 		r:         r,
 		Transport: common.New(conn, w, r, codec),
-		codec:     codec,
 	}
 }
 
@@ -30,32 +29,9 @@ func New[T any](conf common.Conf, conn net.Conn,
 type Transport[T any] struct {
 	r transport.Reader
 	*common.Transport[base.Cmd[T], base.Result]
-	codec    transport.Codec[base.Cmd[T], base.Result]
-	settings delegate.ServerSettings
 }
 
 func (t *Transport[T]) ReceiveServerInfo() (info delegate.ServerInfo, err error) {
 	info, _, err = delegate.UnmarshalServerInfoMUS(t.r)
 	return
-}
-
-func (t *Transport[T]) ReceiveServerSettings() (settings delegate.ServerSettings,
-	err error) {
-	settings, _, err = delegate.UnmarshalServerSettingsMUS(t.r)
-	return
-}
-
-func (t *Transport[T]) ApplyServerSettings(settings delegate.ServerSettings) {
-	t.settings = settings
-}
-
-// Send sends a Command.
-//
-// Returns ErrTooLargeCmd, if the Command size is bigger than
-// ServerSettings.MaxCmdSize.
-func (t *Transport[T]) Send(seq base.Seq, cmd base.Cmd[T]) error {
-	if t.settings.MaxCmdSize > 0 && t.codec.Size(cmd) > t.settings.MaxCmdSize {
-		return ErrTooLargeCmd
-	}
-	return t.Transport.Send(seq, cmd)
 }

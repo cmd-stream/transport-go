@@ -35,5 +35,4 @@ type Reader interface {
 type Codec[T, V any] interface {
 	Encode(seq base.Seq, t T, w Writer) (err error)
 	Decode(r Reader) (seq base.Seq, v V, err error)
-	Size(t T) int
 }
