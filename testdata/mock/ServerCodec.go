@@ -16,30 +16,30 @@ type ServerCodec struct {
 	*mok.Mock
 }
 
-func (mock ServerCodec) RegisterDecode(
+func (c ServerCodec) RegisterDecode(
 	fn func(r transport.Reader) (seq base.Seq, cmd base.Cmd[any], err error),
 ) ServerCodec {
-	mock.Register("Decode", fn)
-	return mock
+	c.Register("Decode", fn)
+	return c
 }
 
-func (mock ServerCodec) RegisterEncode(
+func (c ServerCodec) RegisterEncode(
 	fn func(seq base.Seq, result base.Result, w transport.Writer) (err error),
 ) ServerCodec {
-	mock.Register("Encode", fn)
-	return mock
+	c.Register("Encode", fn)
+	return c
 }
 
-func (mock ServerCodec) RegisterSize(
+func (c ServerCodec) RegisterSize(
 	fn func(result base.Result) (size int),
 ) ServerCodec {
-	mock.Register("Size", fn)
-	return mock
+	c.Register("Size", fn)
+	return c
 }
 
-func (mock ServerCodec) Decode(r transport.Reader) (seq base.Seq, cmd base.Cmd[any],
+func (c ServerCodec) Decode(r transport.Reader) (seq base.Seq, cmd base.Cmd[any],
 	err error) {
-	vals, err := mock.Call("Decode", mok.SafeVal[transport.Reader](r))
+	vals, err := c.Call("Decode", mok.SafeVal[transport.Reader](r))
 	if err != nil {
 		panic(err)
 	}
@@ -49,9 +49,9 @@ func (mock ServerCodec) Decode(r transport.Reader) (seq base.Seq, cmd base.Cmd[a
 	return
 }
 
-func (mock ServerCodec) Encode(seq base.Seq, result base.Result, w transport.Writer) (
+func (c ServerCodec) Encode(seq base.Seq, result base.Result, w transport.Writer) (
 	err error) {
-	vals, err := mock.Call("Encode", seq, mok.SafeVal[base.Result](result),
+	vals, err := c.Call("Encode", seq, mok.SafeVal[base.Result](result),
 		mok.SafeVal[transport.Writer](w))
 	if err != nil {
 		panic(err)
@@ -60,8 +60,8 @@ func (mock ServerCodec) Encode(seq base.Seq, result base.Result, w transport.Wri
 	return
 }
 
-func (mock ServerCodec) Size(result base.Result) (size int) {
-	vals, err := mock.Call("Size", mok.SafeVal[base.Result](result))
+func (c ServerCodec) Size(result base.Result) (size int) {
+	vals, err := c.Call("Size", mok.SafeVal[base.Result](result))
 	if err != nil {
 		panic(err)
 	}

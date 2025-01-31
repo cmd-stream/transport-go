@@ -16,29 +16,29 @@ type ClientCodec struct {
 	*mok.Mock
 }
 
-func (mock ClientCodec) RegisterDecode(
+func (c ClientCodec) RegisterDecode(
 	fn func(r transport.Reader) (seq base.Seq, result base.Result, err error),
 ) ClientCodec {
-	mock.Register("Decode", fn)
-	return mock
+	c.Register("Decode", fn)
+	return c
 }
 
-func (mock ClientCodec) RegisterEncode(
+func (c ClientCodec) RegisterEncode(
 	fn func(seq base.Seq, cmd base.Cmd[any], w transport.Writer) (err error),
 ) ClientCodec {
-	mock.Register("Encode", fn)
-	return mock
+	c.Register("Encode", fn)
+	return c
 }
 
-func (mock ClientCodec) RegisterSize(
+func (c ClientCodec) RegisterSize(
 	fn func(cmd base.Cmd[any]) (size int),
 ) ClientCodec {
-	mock.Register("Size", fn)
-	return mock
+	c.Register("Size", fn)
+	return c
 }
 
-func (mock ClientCodec) Decode(r transport.Reader) (seq base.Seq, result base.Result, err error) {
-	vals, err := mock.Call("Decode", mok.SafeVal[transport.Reader](r))
+func (c ClientCodec) Decode(r transport.Reader) (seq base.Seq, result base.Result, err error) {
+	vals, err := c.Call("Decode", mok.SafeVal[transport.Reader](r))
 	if err != nil {
 		panic(err)
 	}
@@ -48,9 +48,9 @@ func (mock ClientCodec) Decode(r transport.Reader) (seq base.Seq, result base.Re
 	return
 }
 
-func (mock ClientCodec) Encode(seq base.Seq, cmd base.Cmd[any], w transport.Writer) (
+func (c ClientCodec) Encode(seq base.Seq, cmd base.Cmd[any], w transport.Writer) (
 	err error) {
-	vals, err := mock.Call("Encode", seq, mok.SafeVal[base.Cmd[any]](cmd),
+	vals, err := c.Call("Encode", seq, mok.SafeVal[base.Cmd[any]](cmd),
 		mok.SafeVal[transport.Writer](w))
 	if err != nil {
 		panic(err)
@@ -59,8 +59,8 @@ func (mock ClientCodec) Encode(seq base.Seq, cmd base.Cmd[any], w transport.Writ
 	return
 }
 
-func (mock ClientCodec) Size(cmd base.Cmd[any]) (size int) {
-	vals, err := mock.Call("Size", mok.SafeVal[base.Cmd[any]](cmd))
+func (c ClientCodec) Size(cmd base.Cmd[any]) (size int) {
+	vals, err := c.Call("Size", mok.SafeVal[base.Cmd[any]](cmd))
 	if err != nil {
 		panic(err)
 	}

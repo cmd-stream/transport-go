@@ -14,18 +14,18 @@ type Writer struct {
 	*mok.Mock
 }
 
-func (mock Writer) RegisterFlush(fn func() error) Writer {
-	mock.Register("Flush", fn)
-	return mock
+func (w Writer) RegisterFlush(fn func() error) Writer {
+	w.Register("Flush", fn)
+	return w
 }
 
-func (mock Writer) RegisterWriteByte(fn func(b byte) error) Writer {
-	mock.Register("WriteByte", fn)
-	return mock
+func (w Writer) RegisterWriteByte(fn func(b byte) error) Writer {
+	w.Register("WriteByte", fn)
+	return w
 }
 
-func (mock Writer) WriteByte(b byte) (err error) {
-	vals, err := mock.Call("WriteByte", b)
+func (w Writer) WriteByte(b byte) (err error) {
+	vals, err := w.Call("WriteByte", b)
 	if err != nil {
 		panic(err)
 	}
@@ -33,16 +33,16 @@ func (mock Writer) WriteByte(b byte) (err error) {
 	return
 }
 
-func (mock Writer) Write(p []byte) (n int, err error) {
+func (w Writer) Write(p []byte) (n int, err error) {
 	panic("not implemented")
 }
 
-func (mock Writer) WriteString(s string) (n int, err error) {
+func (w Writer) WriteString(s string) (n int, err error) {
 	panic("not implemented")
 }
 
-func (mock Writer) Flush() (err error) {
-	vals, err := mock.Call("Flush")
+func (w Writer) Flush() (err error) {
+	vals, err := w.Call("Flush")
 	if err != nil {
 		panic(err)
 	}
