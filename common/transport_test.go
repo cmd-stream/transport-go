@@ -1,4 +1,4 @@
-package common
+package tcom
 
 import (
 	"errors"
@@ -297,7 +297,7 @@ func TestTransport(t *testing.T) {
 					func() error { return wantErr },
 				)
 				mocks     = []*mok.Mock{writer.Mock}
-				transport = Transport[any, any]{w: writer}
+				transport = Transport[any, any]{W: writer}
 				err       = transport.Flush()
 			)
 			if err != wantErr {

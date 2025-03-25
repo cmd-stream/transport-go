@@ -1,4 +1,4 @@
-package server
+package tser
 
 import (
 	"bufio"
@@ -7,30 +7,40 @@ import (
 	"github.com/cmd-stream/base-go"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go"
-	"github.com/cmd-stream/transport-go/common"
+	tcom "github.com/cmd-stream/transport-go/common"
 )
 
 // New creates a new Transport.
-func New[T any](conf common.Conf, conn net.Conn,
-	codec transport.Codec[base.Result, base.Cmd[T]]) *Transport[T] {
+func New[T any](conn net.Conn, codec transport.Codec[base.Result, base.Cmd[T]],
+	ops ...tcom.SetOption) *Transport[T] {
+	options := tcom.Options{}
+	tcom.Apply(ops, &options)
 	var (
-		w = bufio.NewWriterSize(conn, conf.WriterBufSize)
-		r = bufio.NewReaderSize(conn, conf.ReaderBufSize)
+		w = bufio.NewWriterSize(conn, options.WriterBufSize)
+		r = bufio.NewReaderSize(conn, options.ReaderBufSize)
 	)
-	return &Transport[T]{w, common.New(conn, w, r, codec)}
+	return &Transport[T]{tcom.New(conn, w, r, codec), w}
 }
 
-// Transport is an implementation of the delegate.ServerTransport interface.
+// Transport implements the delegate.ServerTransport interface.
 type Transport[T any] struct {
+	*tcom.Transport[base.Result, base.Cmd[T]]
 	w transport.Writer
-	*common.Transport[base.Result, base.Cmd[T]]
 }
 
 func (t *Transport[T]) SendServerInfo(info delegate.ServerInfo) (
 	err error) {
-	_, err = delegate.MarshalServerInfoMUS(info, t.w)
+	_, err = delegate.ServerInfoMUS.Marshal(info, t.w)
 	if err != nil {
 		return
 	}
 	return t.Flush()
+}
+
+func (t *Transport[T]) WriterBufSize() int {
+	return t.Transport.W.(*bufio.Writer).Size()
+}
+
+func (t *Transport[T]) ReaderBufSize() int {
+	return t.Transport.R.(*bufio.Reader).Size()
 }

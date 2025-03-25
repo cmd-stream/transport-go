@@ -1,4 +1,4 @@
-package client
+package tcln
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 
 	bmock "github.com/cmd-stream/base-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
-	"github.com/cmd-stream/transport-go/common"
 )
 
 const Delta = 100 * time.Millisecond
@@ -20,9 +19,9 @@ func TestTransport(t *testing.T) {
 			var (
 				wantInfo = []byte("info")
 				bs       = func() []byte {
-					bs := make([]byte, 0, delegate.SizeServerInfoMUS(wantInfo))
+					bs := make([]byte, 0, delegate.ServerInfoMUS.Size(wantInfo))
 					buf := bytes.NewBuffer(bs)
-					delegate.MarshalServerInfoMUS(wantInfo, buf)
+					delegate.ServerInfoMUS.Marshal(wantInfo, buf)
 					return buf.Bytes()
 				}()
 				conn = bmock.NewConn().RegisterRead(
@@ -31,7 +30,7 @@ func TestTransport(t *testing.T) {
 						return
 					},
 				)
-				transport = New[any](common.Conf{}, conn, nil)
+				transport = New[any](conn, nil)
 				info, err = transport.ReceiveServerInfo()
 			)
 			if !bytes.Equal(info, wantInfo) {
@@ -51,7 +50,7 @@ func TestTransport(t *testing.T) {
 						return 0, wantErr
 					},
 				)
-				transport = New[any](common.Conf{}, conn, nil)
+				transport = New[any](conn, nil)
 				info, err = transport.ReceiveServerInfo()
 			)
 			if info != nil {

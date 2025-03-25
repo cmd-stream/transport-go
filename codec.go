@@ -6,8 +6,9 @@ import (
 	"github.com/cmd-stream/base-go"
 )
 
-// Writer is the interface that groups the WriteByte, Write, WriteString and
-// Flush methods.
+// Writer is an interface that extends io.ByteWriter, io.Writer, and
+// io.StringWriter. It also includes a Flush method to ensure buffered data is
+// written out.
 type Writer interface {
 	io.ByteWriter
 	io.Writer
@@ -15,23 +16,19 @@ type Writer interface {
 	Flush() error
 }
 
-// Reader is the interface that groups the basic ReadByte and Read methods.
+// Reader is an interface that extends io.Reader and io.ByteReader.
 type Reader interface {
 	io.Reader
 	io.ByteReader
 }
 
-// Codec is responsible for encoding and decoding data transmitted over the
-// connection:
+// Codec is responsible for encoding and decoding data transmitted over a
+// connection.
 //
-//   - On the client side: Encodes Commands and decodes Results received from the
-//     server. If the server imposes a Command size limit, the client can use the
-//     Codec.Size() method to ensure that Commands being sent comply with the size
-//     restriction.
-//
-//   - On the server side: Decodes Commands received from the client and encodes
-//     Results to be sent back. During the Decode process, the server can validate
-//     the Command length to enforce size constraints.
+//   - On the client side: Encodes Commands to send and decodes Results received
+//     from the server.
+//   - On the server side: Decodes Commands from clients, validates them, and
+//     encodes Results to send back.
 type Codec[T, V any] interface {
 	Encode(seq base.Seq, t T, w Writer) (err error)
 	Decode(r Reader) (seq base.Seq, v V, err error)

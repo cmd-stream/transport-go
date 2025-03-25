@@ -1,4 +1,4 @@
-package server
+package tser
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 
 	bmock "github.com/cmd-stream/base-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
-	"github.com/cmd-stream/transport-go/common"
 	"github.com/cmd-stream/transport-go/testdata/mock"
 	"github.com/ymz-ncnk/mok"
 )
@@ -22,9 +21,9 @@ func TestTransport(t *testing.T) {
 			var (
 				wantInfo = []byte("info")
 				wantBs   = func() []byte {
-					bs := make([]byte, 0, delegate.SizeServerInfoMUS(wantInfo))
+					bs := make([]byte, 0, delegate.ServerInfoMUS.Size(wantInfo))
 					buf := bytes.NewBuffer(bs)
-					delegate.MarshalServerInfoMUS(wantInfo, buf)
+					delegate.ServerInfoMUS.Marshal(wantInfo, buf)
 					return buf.Bytes()
 				}()
 				conn = bmock.NewConn().RegisterWrite(
@@ -36,7 +35,7 @@ func TestTransport(t *testing.T) {
 						return
 					},
 				)
-				transport = New[any](common.Conf{}, conn, nil)
+				transport = New[any](conn, nil)
 				err       = transport.SendServerInfo(wantInfo)
 			)
 			if err != nil {
@@ -54,7 +53,7 @@ func TestTransport(t *testing.T) {
 						return
 					},
 				)
-				transport = New[any](common.Conf{}, conn, nil)
+				transport = New[any](conn, nil)
 				err       = transport.SendServerInfo(nil)
 			)
 			if err != wantErr {
