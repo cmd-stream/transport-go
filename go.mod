@@ -10,6 +10,6 @@ require (
 
 require (
 	github.com/mus-format/common-go v0.0.0-20250307125743-867bbd6eb59c // indirect
-	github.com/mus-format/mus-stream-go v0.6.2 // indirect
+	github.com/mus-format/mus-stream-go v0.7.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 )
