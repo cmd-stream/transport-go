@@ -4,33 +4,25 @@ import (
 	"bytes"
 	"errors"
 	"testing"
-	"time"
 
 	bmock "github.com/cmd-stream/base-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go/testdata/mock"
+	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
-
-const Delta = 100 * time.Millisecond
 
 func TestTransport(t *testing.T) {
 
 	t.Run("SendServerInfo should encode info to MUS encoding",
 		func(t *testing.T) {
 			var (
-				wantInfo = []byte("info")
-				wantBs   = func() []byte {
-					bs := make([]byte, 0, delegate.ServerInfoMUS.Size(wantInfo))
-					buf := bytes.NewBuffer(bs)
-					delegate.ServerInfoMUS.Marshal(wantInfo, buf)
-					return buf.Bytes()
-				}()
-				conn = bmock.NewConn().RegisterWrite(
+				wantInfo delegate.ServerInfo = []byte("info")
+				wantBs                       = infoToBs(wantInfo)
+				wantErr  error               = nil
+				conn                         = bmock.NewConn().RegisterWrite(
 					func(bs []byte) (n int, err error) {
-						if !bytes.Equal(bs, wantBs) {
-							t.Errorf("unexpected bs, want '%v' actual '%v'", wantBs, bs)
-						}
+						asserterror.EqualDeep(bs, wantBs, t)
 						n = len(bs)
 						return
 					},
@@ -38,9 +30,7 @@ func TestTransport(t *testing.T) {
 				transport = New[any](conn, nil)
 				err       = transport.SendServerInfo(wantInfo)
 			)
-			if err != nil {
-				t.Errorf("unexpected error, want '%v' actual '%v'", nil, err)
-			}
+			asserterror.EqualError(err, wantErr, t)
 		})
 
 	t.Run("If Conn.Write fails with an error, SendServerInfo should return it",
@@ -56,9 +46,7 @@ func TestTransport(t *testing.T) {
 				transport = New[any](conn, nil)
 				err       = transport.SendServerInfo(nil)
 			)
-			if err != wantErr {
-				t.Errorf("unexpected error, want '%v' actual '%v'", nil, err)
-			}
+			asserterror.EqualError(err, wantErr, t)
 		})
 
 	t.Run("If MarshalServerInfo fails with an error, SendServerInfo should return it",
@@ -72,12 +60,15 @@ func TestTransport(t *testing.T) {
 				transport = &Transport[any]{w: writer}
 				err       = transport.SendServerInfo((delegate.ServerInfo([]byte{})))
 			)
-			if err != wantErr {
-				t.Errorf("unexpected error, want '%v' actual '%v'", wantErr, err)
-			}
-			if infomap := mok.CheckCalls(mocks); len(infomap) > 0 {
-				t.Error(infomap)
-			}
+			asserterror.EqualError(err, wantErr, t)
+			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
 		})
 
+}
+
+func infoToBs(info delegate.ServerInfo) []byte {
+	bs := make([]byte, 0, delegate.ServerInfoMUS.Size(info))
+	buf := bytes.NewBuffer(bs)
+	delegate.ServerInfoMUS.Marshal(info, buf)
+	return buf.Bytes()
 }

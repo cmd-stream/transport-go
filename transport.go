@@ -1,16 +1,15 @@
-package tcom
+package transport
 
 import (
 	"net"
 	"time"
 
 	"github.com/cmd-stream/base-go"
-	"github.com/cmd-stream/transport-go"
 )
 
 // New creates a new Transport.
-func New[T, V any](conn net.Conn, w transport.Writer, r transport.Reader,
-	codec transport.Codec[T, V]) *Transport[T, V] {
+func New[T, V any](conn net.Conn, w Writer, r Reader,
+	codec Codec[T, V]) *Transport[T, V] {
 	return &Transport[T, V]{w, r, conn, codec}
 }
 
@@ -18,10 +17,10 @@ func New[T, V any](conn net.Conn, w transport.Writer, r transport.Reader,
 //
 // It uses a user-defined codec to encode and decode data over the connection.
 type Transport[T, V any] struct {
-	W     transport.Writer
-	R     transport.Reader
+	W     Writer
+	R     Reader
 	conn  net.Conn
-	codec transport.Codec[T, V]
+	codec Codec[T, V]
 }
 
 // LocalAddr returns the connection local network address.
@@ -40,7 +39,7 @@ func (tn *Transport[T, V]) SetSendDeadline(deadline time.Time) error {
 }
 
 // Send sends data using the codec.
-func (tn *Transport[T, V]) Send(seq base.Seq, t T) (err error) {
+func (tn *Transport[T, V]) Send(seq base.Seq, t T) (n int, err error) {
 	return tn.codec.Encode(seq, t, tn.W)
 }
 
@@ -55,7 +54,7 @@ func (tn *Transport[T, V]) SetReceiveDeadline(deadline time.Time) error {
 }
 
 // Receive receives data using the codec.
-func (tn *Transport[T, V]) Receive() (seq base.Seq, v V, err error) {
+func (tn *Transport[T, V]) Receive() (seq base.Seq, v V, n int, err error) {
 	return tn.codec.Decode(tn.R)
 }
 

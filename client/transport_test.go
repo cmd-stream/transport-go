@@ -4,21 +4,21 @@ import (
 	"bytes"
 	"errors"
 	"testing"
-	"time"
 
 	bmock "github.com/cmd-stream/base-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
-)
 
-const Delta = 100 * time.Millisecond
+	asserterror "github.com/ymz-ncnk/assert/error"
+)
 
 func TestTransport(t *testing.T) {
 
 	t.Run("ReceiveServerInfo should decode info from MUS encoding",
 		func(t *testing.T) {
 			var (
-				wantInfo = []byte("info")
-				bs       = func() []byte {
+				wantInfo delegate.ServerInfo = []byte("info")
+				wantErr  error               = nil
+				bs                           = func() []byte {
 					bs := make([]byte, 0, delegate.ServerInfoMUS.Size(wantInfo))
 					buf := bytes.NewBuffer(bs)
 					delegate.ServerInfoMUS.Marshal(wantInfo, buf)
@@ -33,19 +33,16 @@ func TestTransport(t *testing.T) {
 				transport = New[any](conn, nil)
 				info, err = transport.ReceiveServerInfo()
 			)
-			if !bytes.Equal(info, wantInfo) {
-				t.Errorf("unexpected info, want '%v' actual '%v'", wantInfo, info)
-			}
-			if err != nil {
-				t.Errorf("unexpected error, want '%v' actual '%v'", nil, err)
-			}
+			asserterror.EqualDeep(info, wantInfo, t)
+			asserterror.EqualError(err, wantErr, t)
 		})
 
 	t.Run("If decoding fails with an error, ReceiveServerInfo should return this error",
 		func(t *testing.T) {
 			var (
-				wantErr = errors.New("Read error")
-				conn    = bmock.NewConn().RegisterRead(
+				wantInfo delegate.ServerInfo = nil
+				wantErr                      = errors.New("Read error")
+				conn                         = bmock.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						return 0, wantErr
 					},
@@ -53,16 +50,8 @@ func TestTransport(t *testing.T) {
 				transport = New[any](conn, nil)
 				info, err = transport.ReceiveServerInfo()
 			)
-			if info != nil {
-				t.Errorf("unexpected info, want '%v' actual '%v'", nil, info)
-			}
-			if err != wantErr {
-				t.Errorf("unexpected error, want '%v' actual '%v'", wantErr, err)
-			}
+			asserterror.EqualDeep(info, wantInfo, t)
+			asserterror.EqualError(err, wantErr, t)
 		})
 
-}
-
-func SameTime(t1, t2 time.Time) bool {
-	return !(t1.Before(t2.Truncate(Delta)) || t1.After(t2.Add(Delta)))
 }

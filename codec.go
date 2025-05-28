@@ -23,13 +23,12 @@ type Reader interface {
 }
 
 // Codec is responsible for encoding and decoding data transmitted over a
-// connection.
-//
-//   - On the client side: Encodes Commands to send and decodes Results received
+// connection:
+//   - On the client side: encodes Commands to send and decodes Results received
 //     from the server.
-//   - On the server side: Decodes Commands from clients, validates them, and
+//   - On the server side: decodes Commands from clients, validates them, and
 //     encodes Results to send back.
 type Codec[T, V any] interface {
-	Encode(seq base.Seq, t T, w Writer) (err error)
-	Decode(r Reader) (seq base.Seq, v V, err error)
+	Encode(seq base.Seq, t T, w Writer) (n int, err error)
+	Decode(r Reader) (seq base.Seq, v V, n int, err error)
 }

@@ -1,4 +1,4 @@
-package tcom
+package transport
 
 type Options struct {
 	WriterBufSize int
