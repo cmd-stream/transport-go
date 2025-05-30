@@ -1,11 +1,11 @@
-package tser
+package tsrv
 
 import (
 	"bytes"
 	"errors"
 	"testing"
 
-	bmock "github.com/cmd-stream/base-go/testdata/mock"
+	cmock "github.com/cmd-stream/core-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go/testdata/mock"
 	asserterror "github.com/ymz-ncnk/assert/error"
@@ -20,7 +20,7 @@ func TestTransport(t *testing.T) {
 				wantInfo delegate.ServerInfo = []byte("info")
 				wantBs                       = infoToBs(wantInfo)
 				wantErr  error               = nil
-				conn                         = bmock.NewConn().RegisterWrite(
+				conn                         = cmock.NewConn().RegisterWrite(
 					func(bs []byte) (n int, err error) {
 						asserterror.EqualDeep(bs, wantBs, t)
 						n = len(bs)
@@ -37,7 +37,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.Write error")
-				conn    = bmock.NewConn().RegisterWrite(
+				conn    = cmock.NewConn().RegisterWrite(
 					func(b []byte) (n int, err error) {
 						err = wantErr
 						return

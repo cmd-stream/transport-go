@@ -1,13 +1,13 @@
 package mock
 
 import (
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/transport-go"
 	"github.com/ymz-ncnk/mok"
 )
 
-type DecodeServerFn func(r transport.Reader) (seq base.Seq, cmd base.Cmd[any], n int, err error)
-type EncodeServerFn func(seq base.Seq, result base.Result, w transport.Writer) (n int, err error)
+type DecodeServerFn func(r transport.Reader) (seq core.Seq, cmd core.Cmd[any], n int, err error)
+type EncodeServerFn func(seq core.Seq, result core.Result, w transport.Writer) (n int, err error)
 
 func NewServerCodec() ServerCodec {
 	return ServerCodec{
@@ -30,28 +30,28 @@ func (c ServerCodec) RegisterEncode(fn EncodeServerFn) ServerCodec {
 }
 
 func (c ServerCodec) RegisterSize(
-	fn func(result base.Result) (size int),
+	fn func(result core.Result) (size int),
 ) ServerCodec {
 	c.Register("Size", fn)
 	return c
 }
 
-func (c ServerCodec) Decode(r transport.Reader) (seq base.Seq, cmd base.Cmd[any],
+func (c ServerCodec) Decode(r transport.Reader) (seq core.Seq, cmd core.Cmd[any],
 	n int, err error) {
 	vals, err := c.Call("Decode", mok.SafeVal[transport.Reader](r))
 	if err != nil {
 		panic(err)
 	}
-	seq = vals[0].(base.Seq)
-	cmd, _ = vals[1].(base.Cmd[any])
+	seq = vals[0].(core.Seq)
+	cmd, _ = vals[1].(core.Cmd[any])
 	n = vals[2].(int)
 	err, _ = vals[3].(error)
 	return
 }
 
-func (c ServerCodec) Encode(seq base.Seq, result base.Result, w transport.Writer) (
+func (c ServerCodec) Encode(seq core.Seq, result core.Result, w transport.Writer) (
 	n int, err error) {
-	vals, err := c.Call("Encode", seq, mok.SafeVal[base.Result](result),
+	vals, err := c.Call("Encode", seq, mok.SafeVal[core.Result](result),
 		mok.SafeVal[transport.Writer](w))
 	if err != nil {
 		panic(err)
@@ -61,8 +61,8 @@ func (c ServerCodec) Encode(seq base.Seq, result base.Result, w transport.Writer
 	return
 }
 
-func (c ServerCodec) Size(result base.Result) (size int) {
-	vals, err := c.Call("Size", mok.SafeVal[base.Result](result))
+func (c ServerCodec) Size(result core.Result) (size int) {
+	vals, err := c.Call("Size", mok.SafeVal[core.Result](result))
 	if err != nil {
 		panic(err)
 	}

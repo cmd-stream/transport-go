@@ -4,13 +4,13 @@ import (
 	"bufio"
 	"net"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go"
 )
 
 // New creates a new Transport.
-func New[T any](conn net.Conn, codec transport.Codec[base.Cmd[T], base.Result],
+func New[T any](conn net.Conn, codec transport.Codec[core.Cmd[T], core.Result],
 	ops ...transport.SetOption) *Transport[T] {
 	options := transport.Options{}
 	transport.Apply(ops, &options)
@@ -23,7 +23,7 @@ func New[T any](conn net.Conn, codec transport.Codec[base.Cmd[T], base.Result],
 
 // Transport implements the delegate.ClientTransport interface.
 type Transport[T any] struct {
-	*transport.Transport[base.Cmd[T], base.Result]
+	*transport.Transport[core.Cmd[T], core.Result]
 }
 
 func (t *Transport[T]) ReceiveServerInfo() (info delegate.ServerInfo,

@@ -4,7 +4,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 )
 
 // New creates a new Transport.
@@ -39,7 +39,7 @@ func (tn *Transport[T, V]) SetSendDeadline(deadline time.Time) error {
 }
 
 // Send sends data using the codec.
-func (tn *Transport[T, V]) Send(seq base.Seq, t T) (n int, err error) {
+func (tn *Transport[T, V]) Send(seq core.Seq, t T) (n int, err error) {
 	return tn.codec.Encode(seq, t, tn.W)
 }
 
@@ -54,7 +54,7 @@ func (tn *Transport[T, V]) SetReceiveDeadline(deadline time.Time) error {
 }
 
 // Receive receives data using the codec.
-func (tn *Transport[T, V]) Receive() (seq base.Seq, v V, n int, err error) {
+func (tn *Transport[T, V]) Receive() (seq core.Seq, v V, n int, err error) {
 	return tn.codec.Decode(tn.R)
 }
 

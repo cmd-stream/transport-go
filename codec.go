@@ -3,7 +3,7 @@ package transport
 import (
 	"io"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 )
 
 // Writer is an interface that extends io.ByteWriter, io.Writer, and
@@ -29,6 +29,6 @@ type Reader interface {
 //   - On the server side: decodes Commands from clients, validates them, and
 //     encodes Results to send back.
 type Codec[T, V any] interface {
-	Encode(seq base.Seq, t T, w Writer) (n int, err error)
-	Decode(r Reader) (seq base.Seq, v V, n int, err error)
+	Encode(seq core.Seq, t T, w Writer) (n int, err error)
+	Decode(r Reader) (seq core.Seq, v V, n int, err error)
 }

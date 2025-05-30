@@ -1,16 +1,16 @@
-package tser
+package tsrv
 
 import (
 	"bufio"
 	"net"
 
-	"github.com/cmd-stream/base-go"
+	"github.com/cmd-stream/core-go"
 	"github.com/cmd-stream/delegate-go"
 	"github.com/cmd-stream/transport-go"
 )
 
 // New creates a new Transport.
-func New[T any](conn net.Conn, codec transport.Codec[base.Result, base.Cmd[T]],
+func New[T any](conn net.Conn, codec transport.Codec[core.Result, core.Cmd[T]],
 	ops ...transport.SetOption) *Transport[T] {
 	options := transport.Options{}
 	transport.Apply(ops, &options)
@@ -23,7 +23,7 @@ func New[T any](conn net.Conn, codec transport.Codec[base.Result, base.Cmd[T]],
 
 // Transport implements the delegate.ServerTransport interface.
 type Transport[T any] struct {
-	*transport.Transport[base.Result, base.Cmd[T]]
+	*transport.Transport[core.Result, core.Cmd[T]]
 	w transport.Writer
 }
 
