@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/cmd-stream/core-go v0.0.0-20250602134159-c37a0a251158
-	github.com/cmd-stream/delegate-go v0.0.0-20250530174048-ec6d1c990b01
+	github.com/cmd-stream/delegate-go v0.0.0-20250602164806-f3287deb62cd
 	github.com/ymz-ncnk/assert v0.0.0-20250528151733-c41b2fca7933
 	github.com/ymz-ncnk/mok v0.2.1
 )
