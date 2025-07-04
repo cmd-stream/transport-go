@@ -1,4 +1,4 @@
-package tcln
+package client
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package tsrv
+package server
 
 import (
 	"bytes"
