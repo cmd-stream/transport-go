@@ -1,3 +1,5 @@
+// Package transport provides a generic, codec-driven abstraction for sending
+// and receiving messages over a network connection.
 package transport
 
 import (
@@ -9,7 +11,8 @@ import (
 
 // New creates a new Transport.
 func New[T, V any](conn net.Conn, w Writer, r Reader,
-	codec Codec[T, V]) *Transport[T, V] {
+	codec Codec[T, V],
+) *Transport[T, V] {
 	return &Transport[T, V]{w, r, conn, codec}
 }
 

@@ -1,3 +1,5 @@
+// Package server provides a server-side transport implementation for
+// cmd-stream-go.
 package server
 
 import (
@@ -11,7 +13,8 @@ import (
 
 // New creates a new Transport.
 func New[T any](conn net.Conn, codec transport.Codec[core.Result, core.Cmd[T]],
-	ops ...transport.SetOption) *Transport[T] {
+	ops ...transport.SetOption,
+) *Transport[T] {
 	options := transport.Options{}
 	transport.Apply(ops, &options)
 	var (
@@ -28,7 +31,8 @@ type Transport[T any] struct {
 }
 
 func (t *Transport[T]) SendServerInfo(info delegate.ServerInfo) (
-	err error) {
+	err error,
+) {
 	_, err = delegate.ServerInfoMUS.Marshal(info, t.w)
 	if err != nil {
 		return

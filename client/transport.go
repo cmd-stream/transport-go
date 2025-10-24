@@ -1,3 +1,5 @@
+// Package client provides a client-side transport implementation for
+// cmd-stream-go.
 package client
 
 import (
@@ -11,7 +13,8 @@ import (
 
 // New creates a new Transport.
 func New[T any](conn net.Conn, codec transport.Codec[core.Cmd[T], core.Result],
-	ops ...transport.SetOption) *Transport[T] {
+	ops ...transport.SetOption,
+) *Transport[T] {
 	options := transport.Options{}
 	transport.Apply(ops, &options)
 	var (
@@ -27,8 +30,9 @@ type Transport[T any] struct {
 }
 
 func (t *Transport[T]) ReceiveServerInfo() (info delegate.ServerInfo,
-	err error) {
-	info, _, err = delegate.ServerInfoMUS.Unmarshal(t.Transport.R)
+	err error,
+) {
+	info, _, err = delegate.ServerInfoMUS.Unmarshal(t.R)
 	return
 }
 
