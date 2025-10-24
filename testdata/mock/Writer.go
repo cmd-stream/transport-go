@@ -24,6 +24,11 @@ func (w Writer) RegisterWriteByte(fn func(b byte) error) Writer {
 	return w
 }
 
+func (w Writer) RegisterWrite(fn func(p []byte) (int, error)) Writer {
+	w.Register("Write", fn)
+	return w
+}
+
 func (w Writer) WriteByte(b byte) (err error) {
 	vals, err := w.Call("WriteByte", b)
 	if err != nil {
@@ -34,7 +39,13 @@ func (w Writer) WriteByte(b byte) (err error) {
 }
 
 func (w Writer) Write(p []byte) (n int, err error) {
-	panic("not implemented")
+	vals, err := w.Call("Write", p)
+	if err != nil {
+		panic(err)
+	}
+	n = vals[0].(int)
+	err, _ = vals[1].(error)
+	return
 }
 
 func (w Writer) WriteString(s string) (n int, err error) {
