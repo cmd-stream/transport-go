@@ -15,7 +15,6 @@ import (
 )
 
 func TestTransport(t *testing.T) {
-
 	t.Run("LocalAddr should return local address of the conn",
 		func(t *testing.T) {
 			var (
@@ -245,5 +244,4 @@ func TestTransport(t *testing.T) {
 			asserterror.EqualError(err, wantErr, t)
 			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
 		})
-
 }

@@ -13,7 +13,6 @@ import (
 )
 
 func TestTransport(t *testing.T) {
-
 	t.Run("SendServerInfo should encode info to MUS encoding",
 		func(t *testing.T) {
 			var (
@@ -63,7 +62,6 @@ func TestTransport(t *testing.T) {
 			asserterror.EqualError(err, wantErr, t)
 			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
 		})
-
 }
 
 func infoToBs(info delegate.ServerInfo) []byte {

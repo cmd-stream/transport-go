@@ -6,8 +6,10 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type DecodeServerFn func(r transport.Reader) (seq core.Seq, cmd core.Cmd[any], n int, err error)
-type EncodeServerFn func(seq core.Seq, result core.Result, w transport.Writer) (n int, err error)
+type (
+	DecodeServerFn func(r transport.Reader) (seq core.Seq, cmd core.Cmd[any], n int, err error)
+	EncodeServerFn func(seq core.Seq, result core.Result, w transport.Writer) (n int, err error)
+)
 
 func NewServerCodec() ServerCodec {
 	return ServerCodec{
@@ -37,7 +39,8 @@ func (c ServerCodec) RegisterSize(
 }
 
 func (c ServerCodec) Decode(r transport.Reader) (seq core.Seq, cmd core.Cmd[any],
-	n int, err error) {
+	n int, err error,
+) {
 	vals, err := c.Call("Decode", mok.SafeVal[transport.Reader](r))
 	if err != nil {
 		panic(err)
@@ -50,7 +53,8 @@ func (c ServerCodec) Decode(r transport.Reader) (seq core.Seq, cmd core.Cmd[any]
 }
 
 func (c ServerCodec) Encode(seq core.Seq, result core.Result, w transport.Writer) (
-	n int, err error) {
+	n int, err error,
+) {
 	vals, err := c.Call("Encode", seq, mok.SafeVal[core.Result](result),
 		mok.SafeVal[transport.Writer](w))
 	if err != nil {

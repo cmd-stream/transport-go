@@ -6,8 +6,10 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
-type DecodeFn func(r transport.Reader) (seq core.Seq, result core.Result, n int, err error)
-type EncodeFn func(seq core.Seq, cmd core.Cmd[any], w transport.Writer) (n int, err error)
+type (
+	DecodeFn func(r transport.Reader) (seq core.Seq, result core.Result, n int, err error)
+	EncodeFn func(seq core.Seq, cmd core.Cmd[any], w transport.Writer) (n int, err error)
+)
 
 func NewClientCodec() ClientCodec {
 	return ClientCodec{
@@ -49,7 +51,8 @@ func (c ClientCodec) Decode(r transport.Reader) (seq core.Seq, result core.Resul
 }
 
 func (c ClientCodec) Encode(seq core.Seq, cmd core.Cmd[any], w transport.Writer) (
-	n int, err error) {
+	n int, err error,
+) {
 	vals, err := c.Call("Encode", seq, mok.SafeVal[core.Cmd[any]](cmd),
 		mok.SafeVal[transport.Writer](w))
 	if err != nil {

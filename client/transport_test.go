@@ -12,7 +12,6 @@ import (
 )
 
 func TestTransport(t *testing.T) {
-
 	t.Run("ReceiveServerInfo should decode info from MUS encoding",
 		func(t *testing.T) {
 			var (
@@ -53,5 +52,4 @@ func TestTransport(t *testing.T) {
 			asserterror.EqualDeep(info, wantInfo, t)
 			asserterror.EqualError(err, wantErr, t)
 		})
-
 }
