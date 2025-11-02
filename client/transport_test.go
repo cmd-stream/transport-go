@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	cmock "github.com/cmd-stream/core-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
+	cmocks "github.com/cmd-stream/testkit-go/mocks/core"
 
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
@@ -23,7 +23,7 @@ func TestTransport(t *testing.T) {
 					delegate.ServerInfoMUS.Marshal(wantInfo, buf)
 					return buf.Bytes()
 				}()
-				conn = cmock.NewConn().RegisterRead(
+				conn = cmocks.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						n = copy(b, bs)
 						return
@@ -41,7 +41,7 @@ func TestTransport(t *testing.T) {
 			var (
 				wantInfo delegate.ServerInfo = nil
 				wantErr                      = errors.New("Read error")
-				conn                         = cmock.NewConn().RegisterRead(
+				conn                         = cmocks.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						return 0, wantErr
 					},

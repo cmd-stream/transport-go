@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	cmock "github.com/cmd-stream/core-go/testdata/mock"
 	"github.com/cmd-stream/delegate-go"
-	"github.com/cmd-stream/transport-go/testdata/mock"
+	cmocks "github.com/cmd-stream/testkit-go/mocks/core"
+	mocks "github.com/cmd-stream/testkit-go/mocks/transport"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -19,7 +19,7 @@ func TestTransport(t *testing.T) {
 				wantInfo delegate.ServerInfo = []byte("info")
 				wantBs                       = infoToBs(wantInfo)
 				wantErr  error               = nil
-				conn                         = cmock.NewConn().RegisterWrite(
+				conn                         = cmocks.NewConn().RegisterWrite(
 					func(bs []byte) (n int, err error) {
 						asserterror.EqualDeep(bs, wantBs, t)
 						n = len(bs)
@@ -36,7 +36,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.Write error")
-				conn    = cmock.NewConn().RegisterWrite(
+				conn    = cmocks.NewConn().RegisterWrite(
 					func(b []byte) (n int, err error) {
 						err = wantErr
 						return
@@ -52,7 +52,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("WriteByte error")
-				writer  = mock.NewWriter().RegisterWriteByte(
+				writer  = mocks.NewWriter().RegisterWriteByte(
 					func(b byte) error { return wantErr },
 				)
 				mocks     = []*mok.Mock{writer.Mock}
