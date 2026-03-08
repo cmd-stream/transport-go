@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/cmd-stream/core-go"
-	cmocks "github.com/cmd-stream/testkit-go/mocks/core"
-	tmocks "github.com/cmd-stream/testkit-go/mocks/transport"
+	cmock "github.com/cmd-stream/core-go/test/mock"
 	"github.com/cmd-stream/transport-go"
+	"github.com/cmd-stream/transport-go/test/mock"
+	clnmock "github.com/cmd-stream/transport-go/test/mock/client"
 	asserterror "github.com/ymz-ncnk/assert/error"
 	"github.com/ymz-ncnk/mok"
 )
@@ -19,7 +20,7 @@ func TestTransport(t *testing.T) {
 		func(t *testing.T) {
 			var (
 				wantAddr = &net.TCPAddr{IP: net.ParseIP("127.0.0.1:9000")}
-				conn     = cmocks.NewConn().RegisterLocalAddr(
+				conn     = cmock.NewConn().RegisterLocalAddr(
 					func() (addr net.Addr) {
 						return wantAddr
 					},
@@ -31,14 +32,14 @@ func TestTransport(t *testing.T) {
 			if addr != wantAddr {
 				t.Errorf("unexpected addr, want '%v' actual '%v'", wantAddr, addr)
 			}
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("RemoteAddr should return remote address of the conn",
 		func(t *testing.T) {
 			var (
 				wantAddr = &net.TCPAddr{IP: net.ParseIP("127.0.0.1:9000")}
-				conn     = cmocks.NewConn().RegisterRemoteAddr(
+				conn     = cmock.NewConn().RegisterRemoteAddr(
 					func() (addr net.Addr) {
 						return wantAddr
 					},
@@ -50,52 +51,52 @@ func TestTransport(t *testing.T) {
 			if addr != wantAddr {
 				t.Errorf("unexpected addr, want '%v' actual '%v'", wantAddr, addr)
 			}
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("Conn.SetWriteDeadline should receive same deadline as SetSendDeadline",
 		func(t *testing.T) {
 			var (
 				wantDeadline = time.Now()
-				conn         = cmocks.NewConn().RegisterSetWriteDeadline(
+				conn         = cmock.NewConn().RegisterSetWriteDeadline(
 					func(deadline time.Time) (err error) {
-						asserterror.Equal(deadline, wantDeadline, t)
+						asserterror.Equal(t, deadline, wantDeadline)
 						return
 					},
 				)
 				mocks     = []*mok.Mock{conn.Mock}
 				transport = transport.New[core.Cmd[any], core.Result](conn, nil, nil, nil)
 			)
-			transport.SetSendDeadline(wantDeadline)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			_ = transport.SetSendDeadline(wantDeadline)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("If Conn.SetWriteDeadline fails with an error, SetSendDeadline should return it",
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.SetWriteDeadline error")
-				conn    = cmocks.NewConn().RegisterSetWriteDeadline(
+				conn    = cmock.NewConn().RegisterSetWriteDeadline(
 					func(deadline time.Time) (err error) { return wantErr },
 				)
 				mocks     = []*mok.Mock{conn.Mock}
 				transport = transport.New[core.Cmd[any], core.Result](conn, nil, nil, nil)
 				err       = transport.SetSendDeadline(time.Time{})
 			)
-			asserterror.Equal(err, wantErr, t)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.Equal(t, err, wantErr)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("Send should encode data with help of the Codec", func(t *testing.T) {
 		var (
 			wantSeq core.Seq = 1
-			wantCmd          = cmocks.NewCmd()
-			wantN   int      = 3
+			wantCmd          = cmock.NewCmd()
+			wantN            = 3
 			wantErr error    = nil
-			writer           = tmocks.NewWriter()
-			codec            = tmocks.NewClientCodec().RegisterEncode(
+			writer           = mock.NewWriter()
+			codec            = clnmock.NewClientCodec().RegisterEncode(
 				func(seq core.Seq, cmd core.Cmd[any], w transport.Writer) (n int, err error) {
-					asserterror.Equal(seq, wantSeq, t)
-					asserterror.Equal[any](cmd, wantCmd, t)
+					asserterror.Equal(t, seq, wantSeq)
+					asserterror.Equal[any](t, cmd, wantCmd)
 					return wantN, wantErr
 				},
 			)
@@ -103,16 +104,16 @@ func TestTransport(t *testing.T) {
 			transport = transport.New(nil, writer, nil, codec)
 			n, err    = transport.Send(wantSeq, wantCmd)
 		)
-		asserterror.EqualError(err, wantErr, t)
-		asserterror.Equal(n, wantN, t)
-		asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+		asserterror.EqualError(t, err, wantErr)
+		asserterror.Equal(t, n, wantN)
+		asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 	})
 
 	t.Run("If Codec.Encode fails with an error, Send should return it",
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Codec.Encode error")
-				codec   = tmocks.NewClientCodec().RegisterEncode(
+				codec   = clnmock.NewClientCodec().RegisterEncode(
 					func(seq core.Seq, cmd core.Cmd[any], w transport.Writer) (n int, err error) {
 						return 0, wantErr
 					},
@@ -121,49 +122,49 @@ func TestTransport(t *testing.T) {
 				transport = transport.New(nil, nil, nil, codec)
 				_, err    = transport.Send(1, nil)
 			)
-			asserterror.EqualError(err, wantErr, t)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.EqualError(t, err, wantErr)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("Conn.SetReadDeadline should receive same deadline as SetReceiveDeadline",
 		func(t *testing.T) {
 			var (
 				wantDeadline = time.Now()
-				conn         = cmocks.NewConn().RegisterSetReadDeadline(
+				conn         = cmock.NewConn().RegisterSetReadDeadline(
 					func(deadline time.Time) (err error) {
-						asserterror.Equal(deadline, wantDeadline, t)
+						asserterror.Equal(t, deadline, wantDeadline)
 						return
 					},
 				)
 				mocks     = []*mok.Mock{conn.Mock}
 				transport = transport.New[core.Cmd[any], core.Result](conn, nil, nil, nil)
 			)
-			transport.SetReceiveDeadline(wantDeadline)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			_ = transport.SetReceiveDeadline(wantDeadline)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("If Conn.SetReadDeadline fails with an error, SetReceiveDeadline should return it",
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.SetReadDeadline error")
-				conn    = cmocks.NewConn().RegisterSetReadDeadline(
+				conn    = cmock.NewConn().RegisterSetReadDeadline(
 					func(deadline time.Time) (err error) { return wantErr },
 				)
 				mocks     = []*mok.Mock{conn.Mock}
 				transport = transport.New[core.Cmd[any], core.Result](conn, nil, nil, nil)
 				err       = transport.SetReceiveDeadline(time.Time{})
 			)
-			asserterror.EqualError(err, wantErr, t)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.EqualError(t, err, wantErr)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("Receive should decode data with help of the Codec", func(t *testing.T) {
 		var (
 			wantSeq    core.Seq = 1
-			wantResult          = cmocks.NewResult()
-			wantN      int      = 3
+			wantResult          = cmock.NewResult()
+			wantN               = 3
 			wantErr    error    = nil
-			codec               = tmocks.NewClientCodec().RegisterDecode(
+			codec               = clnmock.NewClientCodec().RegisterDecode(
 				func(r transport.Reader) (seq core.Seq, result core.Result, n int, err error) {
 					return wantSeq, wantResult, wantN, wantErr
 				},
@@ -172,11 +173,11 @@ func TestTransport(t *testing.T) {
 			transport           = transport.New(nil, nil, nil, codec)
 			seq, result, n, err = transport.Receive()
 		)
-		asserterror.EqualError(err, wantErr, t)
-		asserterror.Equal(seq, wantSeq, t)
-		asserterror.EqualDeep(result, wantResult, t)
-		asserterror.Equal(n, wantN, t)
-		asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+		asserterror.EqualError(t, err, wantErr)
+		asserterror.Equal(t, seq, wantSeq)
+		asserterror.EqualDeep(t, result, wantResult)
+		asserterror.Equal(t, n, wantN)
+		asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 	})
 
 	t.Run("If Codec.Decode fails with an error, Receive should return it",
@@ -185,7 +186,7 @@ func TestTransport(t *testing.T) {
 				wantSeq    core.Seq    = 0
 				wantResult core.Result = nil
 				wantErr                = errors.New("Codec.Decode error")
-				codec                  = tmocks.NewClientCodec().RegisterDecode(
+				codec                  = clnmock.NewClientCodec().RegisterDecode(
 					func(r transport.Reader) (seq core.Seq, result core.Result, n int, err error) {
 						err = wantErr
 						return
@@ -195,53 +196,53 @@ func TestTransport(t *testing.T) {
 				transport           = transport.New(nil, nil, nil, codec)
 				seq, result, _, err = transport.Receive()
 			)
-			asserterror.EqualError(err, wantErr, t)
-			asserterror.Equal(seq, wantSeq, t)
-			asserterror.EqualDeep(result, wantResult, t)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.EqualError(t, err, wantErr)
+			asserterror.Equal(t, seq, wantSeq)
+			asserterror.EqualDeep(t, result, wantResult)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("Close should close the conn", func(t *testing.T) {
 		var (
 			wantErr error = nil
-			conn          = cmocks.NewConn().RegisterClose(
+			conn          = cmock.NewConn().RegisterClose(
 				func() (err error) { return nil },
 			)
 			mocks     = []*mok.Mock{conn.Mock}
 			transport = transport.New[core.Cmd[any], core.Result](conn, nil, nil, nil)
 			err       = transport.Close()
 		)
-		asserterror.EqualError(err, wantErr, t)
-		asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+		asserterror.EqualError(t, err, wantErr)
+		asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 	})
 
 	t.Run("If Conn.Close fails with an error, Close should return it",
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Conn.Close error")
-				conn    = cmocks.NewConn().RegisterClose(
+				conn    = cmock.NewConn().RegisterClose(
 					func() (err error) { return wantErr },
 				)
 				mocks     = []*mok.Mock{conn.Mock}
 				transport = transport.New[core.Cmd[any], core.Result](conn, nil, nil, nil)
 				err       = transport.Close()
 			)
-			asserterror.EqualError(err, wantErr, t)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.EqualError(t, err, wantErr)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 
 	t.Run("If Writer.Flus fails with an error, Flush should return it",
 		func(t *testing.T) {
 			var (
 				wantErr = errors.New("Writer.Flush error")
-				writer  = tmocks.NewWriter().RegisterFlush(
+				writer  = mock.NewWriter().RegisterFlush(
 					func() error { return wantErr },
 				)
 				mocks     = []*mok.Mock{writer.Mock}
 				transport = transport.Transport[any, any]{W: writer}
 				err       = transport.Flush()
 			)
-			asserterror.EqualError(err, wantErr, t)
-			asserterror.EqualDeep(mok.CheckCalls(mocks), mok.EmptyInfomap, t)
+			asserterror.EqualError(t, err, wantErr)
+			asserterror.EqualDeep(t, mok.CheckCalls(mocks), mok.EmptyInfomap)
 		})
 }

@@ -1,3 +1,3 @@
 // Package server provides a server-side transport implementation for
-// cmd-stream-go.
+// cmd-stream.
 package server

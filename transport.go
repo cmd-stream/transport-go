@@ -18,7 +18,7 @@ func New[T, V any](conn net.Conn, w Writer, r Reader,
 
 // Transport is a common transport for both client and server.
 //
-// It uses a user-defined codec to encode and decode data over the connection.
+// It uses a user-defined codec to encode/decode data over the connection.
 type Transport[T, V any] struct {
 	W     Writer
 	R     Reader

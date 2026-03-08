@@ -17,6 +17,6 @@ func TestOptions(t *testing.T) {
 		WithReaderBufSize(wantReaderBufSize),
 	}, &o)
 
-	asserterror.Equal(o.WriterBufSize, wantWriterBufSize, t)
-	asserterror.Equal(o.ReaderBufSize, wantReaderBufSize, t)
+	asserterror.Equal(t, o.WriterBufSize, wantWriterBufSize)
+	asserterror.Equal(t, o.ReaderBufSize, wantReaderBufSize)
 }

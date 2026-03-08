@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	cmock "github.com/cmd-stream/core-go/test/mock"
 	"github.com/cmd-stream/delegate-go"
-	cmocks "github.com/cmd-stream/testkit-go/mocks/core"
 
 	asserterror "github.com/ymz-ncnk/assert/error"
 )
@@ -17,13 +17,8 @@ func TestTransport(t *testing.T) {
 			var (
 				wantInfo delegate.ServerInfo = []byte("info")
 				wantErr  error               = nil
-				bs                           = func() []byte {
-					bs := make([]byte, 0, delegate.ServerInfoMUS.Size(wantInfo))
-					buf := bytes.NewBuffer(bs)
-					delegate.ServerInfoMUS.Marshal(wantInfo, buf)
-					return buf.Bytes()
-				}()
-				conn = cmocks.NewConn().RegisterRead(
+				bs                           = infoToBs(wantInfo)
+				conn                         = cmock.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						n = copy(b, bs)
 						return
@@ -32,8 +27,8 @@ func TestTransport(t *testing.T) {
 				transport = New[any](conn, nil)
 				info, err = transport.ReceiveServerInfo()
 			)
-			asserterror.EqualDeep(info, wantInfo, t)
-			asserterror.EqualError(err, wantErr, t)
+			asserterror.EqualDeep(t, info, wantInfo)
+			asserterror.EqualError(t, err, wantErr)
 		})
 
 	t.Run("If decoding fails with an error, ReceiveServerInfo should return this error",
@@ -41,7 +36,7 @@ func TestTransport(t *testing.T) {
 			var (
 				wantInfo delegate.ServerInfo = nil
 				wantErr                      = errors.New("Read error")
-				conn                         = cmocks.NewConn().RegisterRead(
+				conn                         = cmock.NewConn().RegisterRead(
 					func(b []byte) (n int, err error) {
 						return 0, wantErr
 					},
@@ -49,7 +44,17 @@ func TestTransport(t *testing.T) {
 				transport = New[any](conn, nil)
 				info, err = transport.ReceiveServerInfo()
 			)
-			asserterror.EqualDeep(info, wantInfo, t)
-			asserterror.EqualError(err, wantErr, t)
+			asserterror.EqualDeep(t, info, wantInfo)
+			asserterror.EqualError(t, err, wantErr)
 		})
+}
+
+func infoToBs(info delegate.ServerInfo) []byte {
+	var (
+		size = delegate.ServerInfoMUS.Size(info)
+		bs   = make([]byte, 0, size)
+		buf  = bytes.NewBuffer(bs)
+		_, _ = delegate.ServerInfoMUS.Marshal(info, buf)
+	)
+	return buf.Bytes()
 }

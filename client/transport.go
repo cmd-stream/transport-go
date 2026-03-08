@@ -11,13 +11,13 @@ import (
 
 // New creates a new Transport.
 func New[T any](conn net.Conn, codec transport.Codec[core.Cmd[T], core.Result],
-	ops ...transport.SetOption,
+	opts ...transport.SetOption,
 ) *Transport[T] {
-	options := transport.Options{}
-	transport.Apply(ops, &options)
+	o := transport.Options{}
+	transport.Apply(opts, &o)
 	var (
-		w = bufio.NewWriterSize(conn, options.WriterBufSize)
-		r = bufio.NewReaderSize(conn, options.ReaderBufSize)
+		w = bufio.NewWriterSize(conn, o.WriterBufSize)
+		r = bufio.NewReaderSize(conn, o.ReaderBufSize)
 	)
 	return &Transport[T]{transport.New(conn, w, r, codec)}
 }
